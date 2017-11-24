@@ -462,7 +462,361 @@ sum(errors)/length(errors)
 ## [1] 0.4499541
 ```
 
-The error rate obtained by using the LOOCV method is 45%.
+The error rate obtained by using the LOOCV method is 45%.  
+
+8. We will now perform cross-validation on a simulated data set.
+(a) Generate a simulated data set as follows:
+
+```r
+set.seed(1)
+y=rnorm(100)
+x=rnorm(100)
+y=x-2*x^2+rnorm(100)
+```
+In this data set, what is n and what is p? Write out the model used to generate the data in equation form.  
+
+In this dataset n = 100, p = 2. The model used to generate the data is y = x - 2* x^2^ + ε
 
 
-tbc
+```r
+plot(x, y)
+```
+
+![](Ch._5_Exercises_files/figure-html/unnamed-chunk-33-1.png)<!-- -->
+
+The relationship of the x and y variables is curvilinear. 
+
+(c) Set a random seed, and then compute the LOOCV errors that result from fitting the following four models using least squares:  
+i. Y = ${\beta}_0$ + ${\beta}_1$X + ε  
+
+```r
+library(boot)
+Xy <- data.frame(x, y)
+set.seed(5)
+fit_c_i <- glm(y ~ x)
+cv.err_c_i <- cv.glm(Xy, fit_c_i)
+cv.err_c_i$delta
+```
+
+```
+## [1] 5.890979 5.888812
+```
+ii. Y = ${\beta}_0$ + ${\beta}_1$X + ${\beta}_2 X_2$ + ε  
+
+```r
+set.seed(5)
+fit_c_ii <- glm(y ~ poly(x, 2))
+cv.err_c_ii <- cv.glm(Xy, fit_c_ii)
+cv.err_c_ii$delta
+```
+
+```
+## [1] 1.086596 1.086326
+```
+
+iii. Y = ${\beta}_0$ +${\beta}_1$X +${\beta}_2 X_2$ +${\beta}_3 X_3$ +ε  
+
+```r
+set.seed(5)
+fit_c_iii <- glm(y ~ poly(x, 3))
+cv.err_c_iii <- cv.glm(Xy, fit_c_iii)
+cv.err_c_iii$delta
+```
+
+```
+## [1] 1.102585 1.102227
+```
+
+iv. Y = ${\beta}_0$ +${\beta}_1$X +${\beta}_2 X_2$ +${\beta}_3 X_3$ +${\beta}_4 X_4$ +ε.  
+
+```r
+set.seed(5)
+fit_c_iv <- glm(y ~ poly(x, 4))
+cv.err_c_iv <- cv.glm(Xy, fit_c_iv)
+cv.err_c_iv$delta
+```
+
+```
+## [1] 1.114772 1.114334
+```
+
+Note you may find it helpful to use the `data.frame()` function
+to create a single data set containing both X and Y .
+
+(d) Repeat (c) using another random seed, and report your results.
+Are your results the same as what you got in (c)? Why?  
+
+i. Y = ${\beta}_0$ + ${\beta}_1$X + ε  
+
+```r
+set.seed(10)
+fit_d_i <- glm(y ~ x)
+cv.err_d_i <- cv.glm(Xy, fit_d_i)
+cv.err_d_i$delta
+```
+
+```
+## [1] 5.890979 5.888812
+```
+
+ii. Y = ${\beta}_0$ + ${\beta}_1$X + ${\beta}_2 X_2$ + ε  
+
+```r
+set.seed(10)
+fit_d_ii <- glm(y ~ poly(x, 2))
+cv.err_d_ii <- cv.glm(Xy, fit_d_ii)
+cv.err_d_ii$delta
+```
+
+```
+## [1] 1.086596 1.086326
+```
+
+iii. Y = ${\beta}_0$ +${\beta}_1$X +${\beta}_2 X_2$ +${\beta}_3 X_3$ +ε  
+
+```r
+set.seed(10)
+fit_d_iii <- glm(y ~ poly(x, 3))
+cv.err_d_iii <- cv.glm(Xy, fit_d_iii)
+cv.err_d_iii$delta
+```
+
+```
+## [1] 1.102585 1.102227
+```
+
+iv. Y = ${\beta}_0$ +${\beta}_1$X +${\beta}_2 X_2$ +${\beta}_3 X_3$ +${\beta}_4 X_4$ +ε.  
+
+```r
+set.seed(10)
+fit_d_iv <- glm(y ~ poly(x, 4))
+cv.err_d_iv <- cv.glm(Xy, fit_d_iv)
+cv.err_d_iv$delta
+```
+
+```
+## [1] 1.114772 1.114334
+```
+
+Yes, the results are the same as before, because in LOOCV K=n, which means that each observation is a validation set, while the others are the training set.  
+
+(e) Which of the models in (c) had the smallest LOOCV error? Is this what you expected? Explain your answer.  
+
+The Y = ${\beta}_0$ +${\beta}_1$X +${\beta}_2 X_2$ +ε model had the smallest error of 1.086596. Since we knew from the scatterplot that the relationship is curvilinear, we should have expected that a quadratic equation will give the best result.  
+
+(f) Comment on the statistical significance of the coefficient estimates that results from fitting each of the models in (c) using least squares. Do these results agree with the conclusions drawn based on the cross-validation results?  
+
+```r
+summary(fit_c_iv)
+```
+
+```
+## 
+## Call:
+## glm(formula = y ~ poly(x, 4))
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.8914  -0.5244   0.0749   0.5932   2.7796  
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  -1.8277     0.1041 -17.549   <2e-16 ***
+## poly(x, 4)1   2.3164     1.0415   2.224   0.0285 *  
+## poly(x, 4)2 -21.0586     1.0415 -20.220   <2e-16 ***
+## poly(x, 4)3  -0.3048     1.0415  -0.293   0.7704    
+## poly(x, 4)4  -0.4926     1.0415  -0.473   0.6373    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for gaussian family taken to be 1.084654)
+## 
+##     Null deviance: 552.21  on 99  degrees of freedom
+## Residual deviance: 103.04  on 95  degrees of freedom
+## AIC: 298.78
+## 
+## Number of Fisher Scoring iterations: 2
+```
+
+Only the p-values of the linear and quadratic models are statistically significant (linear on a 0.05 significance level, quadratic on a 0.001 significance level). These results agree with the conclusions based on the cross-validation results, because the linear and quadratic models had the lowest error rates (quadratic lower than linear).
+
+9. We will now consider the Boston housing data set, from the MASS library.
+
+```r
+require(MASS)
+```
+
+```
+## Loading required package: MASS
+```
+
+```r
+data(Boston)
+attach(Boston)
+```
+
+(a) Based on this data set, provide an estimate for the population mean of medv. Call this estimate $\widehat μ$.
+
+
+```r
+u.hat <- mean(medv)
+u.hat
+```
+
+```
+## [1] 22.53281
+```
+(b) Provide an estimate of the standard error of $\widehat μ$. Interpret this result.
+Hint: We can compute the standard error of the sample mean by dividing the sample standard deviation by the square root of the number of observations.
+
+
+```r
+sd(medv)/sqrt(nrow(Boston))
+```
+
+```
+## [1] 0.4088611
+```
+(c) Now estimate the standard error of $\widehat μ$ using the bootstrap. How does this compare to your answer from (b)?
+
+```r
+boot.fn=function(data,index) {
+  return(mean(data[index]))
+}
+set.seed(5)
+boot(Boston$medv, boot.fn, 1000)
+```
+
+```
+## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+## 
+## 
+## Bootstrap Statistics :
+##     original      bias    std. error
+## t1* 22.53281 -0.01329545    0.412335
+```
+(d) Based on your bootstrap estimate from (c), provide a 95 % confidence interval for the mean of medv. Compare it to the results obtained using `t.test(Boston$medv)`. Hint: You can approximate a 95 % confidence interval using the formula [μˆ − 2SE(μˆ), μˆ + 2SE(μˆ)].
+
+```r
+t.test(Boston$medv)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  Boston$medv
+## t = 55.111, df = 505, p-value < 2.2e-16
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  21.72953 23.33608
+## sample estimates:
+## mean of x 
+##  22.53281
+```
+
+```r
+u.hat - 2*0.412335 ; u.hat + 2*0.412335
+```
+
+```
+## [1] 21.70814
+```
+
+```
+## [1] 23.35748
+```
+The bootstrap 95% confidence interval is very close to the t-test confidence interval.
+
+(e) Based on this dataset, provide an estimate, $\widehat μ_{med}$,for the median value of medv in the population. 
+
+```r
+med.hat <- median(medv)
+med.hat
+```
+
+```
+## [1] 21.2
+```
+(f) We now would like to estimate the standard error of $\widehat μ_{med}$. Unfortunately, there is no simple formula for computing the standard error of the median. Instead, estimate the standard error of the median using the bootstrap. Comment on your findings.
+
+
+```r
+boot.fn.med=function(data,index) {
+  return(median(data[index]))
+}
+set.seed(5)
+boot(Boston$medv, boot.fn.med, 1000)
+```
+
+```
+## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Boston$medv, statistic = boot.fn.med, R = 1000)
+## 
+## 
+## Bootstrap Statistics :
+##     original   bias    std. error
+## t1*     21.2 -0.01255   0.3834932
+```
+We get the same value for the median when using bootstrap. The standard error for the median is smaller than the standard error for the mean.
+
+(g) Based on this data set, provide an estimate for the tenth percentile of medv in Boston suburbs. Call this quantity $\widehat μ_{0.1}$. (You can use the `quantile()` function.)  
+
+```r
+u.0.1 <- quantile(medv, 0.1)
+u.0.1
+```
+
+```
+##   10% 
+## 12.75
+```
+
+(h) Use the bootstrap to estimate the standard error of $\widehat μ_{0.1}$. Comment on your findings. 
+
+```r
+boot.fn.q=function(data,index) {
+  u.0.1 <- quantile(data[index], c(0.1))
+  return(u.0.1)
+}
+```
+
+```r
+set.seed(5)
+boot(medv, boot.fn.q, 1000)
+```
+
+```
+## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = medv, statistic = boot.fn.q, R = 1000)
+## 
+## 
+## Bootstrap Statistics :
+##     original  bias    std. error
+## t1*    12.75  0.0086   0.5037855
+```
+The value for the 10% quantile is the same when using bootstrap. The standard error is 50.38%.
+
+
+
+
+
+
+
+
+
+
+
