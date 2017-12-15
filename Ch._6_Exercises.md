@@ -741,32 +741,145 @@ print(sort(errors))
 Both PCR and LM methods have the lowest test error, followed by PLS, LASSO and then RIDGE regression. 
 The first four have comparable test errors, while ridge regression produces significantly worse results.  
 
+10. We have seen that as the number of features used in a model increases, the training error will necessarily decrease, but the test error may not. We will now explore this in a simulated data set.  
+
+(a) Generate a data set with p = 20 features, n = 1,000 observations, and an associated quantitative response vector generated according to the model
+Y = Xβ+ε,
+where β has some elements that are exactly equal to zero.
 
 
+```r
+set.seed(3)
+
+X <- matrix(rnorm(1000*20), 1000, 20)
+B <- rnorm(20)
+B[c(3, 4, 9, 10, 14, 18)] <- 0
+e <- rnorm(1000)
+Y <- X %*% B + e
+```
+(b) Split your dataset into a training set containing 100 observations and a test set containing 900 observations.
 
 
+```r
+set.seed(3)
+train <- sample(1:nrow(X), 100)
+test <- -train
+X_train <- X[train, ]
+X_test <- X[test, ]
+Y_train <- Y[train]
+Y_test <- Y[test]
+```
+
+(c) Perform best subset selection on the training set, and plot the training set MSE associated with the best model of each size.
 
 
+```r
+require(leaps)
+
+dataset_train <- data.frame(x=X_train, y=Y_train)
+dataset_train_matrix <- model.matrix(y ~ ., data=dataset_train, nvmax=20)
+best_subset <- regsubsets(y ~ ., data=dataset_train, nvmax=20)
+```
 
 
+```r
+val.errors <- rep(NA,20)
+for(i in 1:20){
+ coefi <- coef(best_subset,id=i)
+ pred <- dataset_train_matrix[,names(coefi)]%*%coefi
+ val.errors[i] <- mean((pred-Y_train)^2) 
+}
+plot(val.errors, type='b')
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-50-1.png)<!-- -->
+
+```r
+which.min(val.errors)
+```
+
+```
+## [1] 20
+```
 
 
+(d) Plot the test set MSE associated with the best model of each size.
 
 
+```r
+dataset_test <- data.frame(x=X_test, y=Y_test)
+dataset_test_matrix <- model.matrix(y ~ ., data=dataset_test, nvmax=20)
+
+val.errors.test <- rep(NA,20)
+for(i in 1:20){
+ coefi <- coef(best_subset,id=i)
+ pred <- dataset_test_matrix[,names(coefi)]%*%coefi
+ val.errors.test[i] <- mean((pred-Y_test)^2) 
+}
+plot(val.errors.test, type='b')
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-52-1.png)<!-- -->
+
+(e) For which model size does the test set MSE take on its minimum value? Comment on your results. If it takes on its minimum value for a model containing only an intercept or a model containing all of the features, then play around with the way that you are generating the data in (a) until you come up with a scenario in which the test set MSE is minimized for an intermediate model size.
+
+```r
+which.min(val.errors.test)
+```
+
+```
+## [1] 15
+```
+The model with 15 variables results in a model with a minimum test set MSE.  
+
+(f) How does the model at which the test set MSE is minimized compare to the true model used to generate the data? Comment on the coefficient values.
 
 
+```r
+coef(best_subset, which.min(val.errors.test))
+```
+
+```
+## (Intercept)         x.1         x.2         x.4         x.5         x.7 
+##  0.04937546 -1.28993666  0.92815123  0.13530479 -0.12213112 -1.12094652 
+##         x.8        x.11        x.12        x.13        x.14        x.15 
+## -0.19174233  1.70721060  0.15338185 -0.54307073 -0.14264014 -1.43742027 
+##        x.16        x.17        x.19        x.20 
+##  0.48846168  1.20504002  0.10492127  0.20178900
+```
+The model excluded 4 coefficients that have been zeroed out - X3, X9, X10, and X18, but left the remaining 2 in the model - X4 and X14.
+
+(g) Create a plot displaying $\sqrt{\sum_{j=1}^{p}(\beta_j - \widehat{\beta}_j^r)^2}$ for a range of values
+of r, where $β_j^r$ is the jth coefficient estimate for the best model containing r coefficients. Comment on what you observe. How does this compare to the test MSE plot from (d)?
 
 
+```r
+val.errors.r=rep(NA,20)
+x.columns <- colnames(X, do.NULL = FALSE, prefix="x.")
+for(i in 1:20){
+ coefi=coef(best_subset,id=i)
+ val.errors.r[i]=sqrt(sum((B[x.columns %in% names(coefi)] - coefi[names(coefi) %in% x.columns])^2) + sum(B[!(x.columns %in% names(coefi))])^2)
+}
+plot(val.errors.r, type='b')
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-55-1.png)<!-- -->
 
 
+```r
+which.min(val.errors.r)
+```
+
+```
+## [1] 11
+```
+
+The model with the lowest test MSE is different from the model with the estimated coefficients closest to the true coefficients, which means that the lower test MSE doesn't necessarily mean that the coefficients are a closer fit.
 
 
 
 
 tbc
-
-
-
 
 
 
