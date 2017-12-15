@@ -357,6 +357,7 @@ points(which.max(reg.fit.full.summary$adjr2), reg.fit.full.summary$adjr2[which.m
 ```
 
 ![](Ch._6_Exercises_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
+
 We pick the 2 variable model with Cp, the 1 variable model with BIC, and the 4 variable model with Adjusted R^2^.
 
 
@@ -424,7 +425,342 @@ predict(cv.lasso.mod, s = min.lambda, type = "coefficients")[1:11, ]
 ##    0.000000    1.936760    0.000000    0.000000    0.000000
 ```
 
-The lasso method chose the 1 variable model using only X^7^ variable.
+The lasso method chose the 1 variable model using only X^7^ variable.  
+
+9. In this exercise, we will predict the number of applications received using the other variables in the `College` data set.
+
+```r
+require(ISLR)
+```
+
+```
+## Loading required package: ISLR
+```
+
+```r
+data(College)
+attach(College)
+```
+(a) Split the data set into a training set and a test set.
+
+```r
+set.seed(2)
+train <- sample(1:nrow(College), nrow(College)/2)
+test <- -train
+y.test <- Apps[test]
+```
+(b) Fit a linear model using least squares on the training set, and
+report the test error obtained.
+
+```r
+lm.fit <- lm(Apps ~., data=College, subset = train)
+summary(lm.fit)
+```
+
+```
+## 
+## Call:
+## lm(formula = Apps ~ ., data = College, subset = train)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3017.4  -436.1   -18.8   333.2  6012.7 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -916.22473  526.31781  -1.741 0.082546 .  
+## PrivateYes  -675.60526  186.94926  -3.614 0.000343 ***
+## Accept         1.26474    0.07104  17.802  < 2e-16 ***
+## Enroll        -0.56985    0.27919  -2.041 0.041955 *  
+## Top10perc     52.77650    7.39394   7.138 5.05e-12 ***
+## Top25perc    -16.97650    5.97766  -2.840 0.004761 ** 
+## F.Undergrad    0.11134    0.04754   2.342 0.019718 *  
+## P.Undergrad    0.01719    0.03721   0.462 0.644356    
+## Outstate      -0.06523    0.02608  -2.501 0.012826 *  
+## Room.Board     0.24869    0.06491   3.831 0.000150 ***
+## Books         -0.21936    0.28501  -0.770 0.442007    
+## Personal       0.06642    0.08017   0.828 0.407957    
+## PhD           -8.30341    6.40247  -1.297 0.195471    
+## Terminal      -4.76029    6.92470  -0.687 0.492238    
+## S.F.Ratio     31.81493   16.15638   1.969 0.049677 *  
+## perc.alumni    0.39704    5.44442   0.073 0.941905    
+## Expend         0.08934    0.01642   5.442 9.59e-08 ***
+## Grad.Rate      9.99603    4.24124   2.357 0.018950 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 973.9 on 370 degrees of freedom
+## Multiple R-squared:  0.9261,	Adjusted R-squared:  0.9227 
+## F-statistic: 272.8 on 17 and 370 DF,  p-value: < 2.2e-16
+```
+
+```r
+lm.pred <- predict(lm.fit, College[test,])
+lm.error <- mean((lm.pred - y.test)^2)
+lm.error
+```
+
+```
+## [1] 1475528
+```
+The test MSE is 1475528.
+
+(c) Fit a ridge regression model on the training set, with λ chosen
+by cross-validation. Report the test error obtained.
+
+```r
+x <- model.matrix(Apps~., data=College)[, -1]
+x.train <- x[train,]
+y <- College$Apps
+y.train <- y[train]
+```
+
+
+```r
+set.seed(7)
+require(glmnet)
+ridge.fit <- glmnet(x.train,y.train,alpha=0)
+cv.ridge.fit <- cv.glmnet(x.train,y.train,alpha=0)
+plot(cv.ridge.fit)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
+
+```r
+bestlam <- cv.ridge.fit$lambda.min
+bestlam
+```
+
+```
+## [1] 357.5734
+```
+Best lambda chosen by cross-validation is 357.5734.
+
+
+```r
+ridge.pred <- predict(ridge.fit, s=bestlam, newx=x[test,]) 
+ridge.error <- mean((ridge.pred-y.test)^2)
+ridge.error
+```
+
+```
+## [1] 2475678
+```
+The test MSE for ridge regression is 2475678, and is higher than linear regression.  
+
+(d) Fit a lasso model on the training set, with λ chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
+
+```r
+set.seed(2)
+lasso.fit <- glmnet(x.train,y.train,alpha=1)
+cv.lasso.fit<- cv.glmnet(x.train,y.train,alpha=1)
+bestlam.lasso <- cv.lasso.fit$lambda.min
+bestlam.lasso
+```
+
+```
+## [1] 12.26644
+```
+The best lambda value chosen using cross-validation for the lasso model is 12.26644.
+
+
+```r
+lasso.pred <- predict(lasso.fit, s=bestlam.lasso, newx=x[test,]) 
+lasso.error <- mean((lasso.pred-y.test)^2)
+lasso.error
+```
+
+```
+## [1] 1555235
+```
+The test MSE for lasso regresison is 1555235, which is higher than ridge regression.
+
+
+```r
+lasso.c <- predict(lasso.fit,type="coefficients", s=bestlam)[1:17,]
+length(lasso.c[lasso.c != 0])
+```
+
+```
+## [1] 5
+```
+There are 5 non-zero coefficient estimates.
+
+(e) Fit a PCR model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value of M selected by cross-validation.  
+
+
+```r
+require(pls)
+```
+
+```
+## Loading required package: pls
+```
+
+```
+## 
+## Attaching package: 'pls'
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     loadings
+```
+
+```r
+set.seed(1)
+pcr.fit <- pcr(Apps~., data=College, subset=train, scale=TRUE, validation ="CV")
+summary(pcr.fit)
+```
+
+```
+## Data: 	X dimension: 388 17 
+## 	Y dimension: 388 1
+## Fit method: svdpc
+## Number of components considered: 17
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV            3508     3536     1688     1696     1284     1279     1252
+## adjCV         3508     3539     1685     1698     1252     1260     1249
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV        1226     1193     1193      1182      1185      1186      1189
+## adjCV     1220     1185     1191      1178      1183      1182      1185
+##        14 comps  15 comps  16 comps  17 comps
+## CV         1185      1194      1061      1052
+## adjCV      1181      1190      1056      1046
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps
+## X     32.0511    57.98    65.49    71.19    76.33    81.22    84.72
+## Apps   0.1403    77.35    77.35    87.55    87.66    88.04    88.71
+##       8 comps  9 comps  10 comps  11 comps  12 comps  13 comps  14 comps
+## X       88.00    91.06     93.47     95.34      97.2     98.21     98.98
+## Apps    89.15    89.19     89.67     89.69      89.8     89.88     89.95
+##       15 comps  16 comps  17 comps
+## X        99.52     99.87    100.00
+## Apps     89.96     92.23     92.61
+```
+
+```r
+validationplot(pcr.fit,val.type="MSEP")
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-40-1.png)<!-- -->
+
+We see that the lowest cross-validation error occurs when all 17 components are included.
+
+```r
+pcr.pred <- predict(pcr.fit,x[test,], ncomp=17) 
+pcr.error <- mean((pcr.pred-y.test)^2)
+pcr.error
+```
+
+```
+## [1] 1475528
+```
+The test MSE is 1475528, which is higher than lasso regression.  
+
+(f) Fit a PLS model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value of M selected by cross-validation.
+
+```r
+set.seed(1)
+pls.fit <- plsr(Apps~., data=College, subset=train, scale=TRUE, validation="CV")
+summary(pls.fit)
+```
+
+```
+## Data: 	X dimension: 388 17 
+## 	Y dimension: 388 1
+## Fit method: kernelpls
+## Number of components considered: 17
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV            3508     1511     1197     1178     1149     1107     1081
+## adjCV         3508     1508     1170     1177     1141     1087     1071
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV        1060     1055     1052      1049      1052      1051      1051
+## adjCV     1054     1050     1047      1044      1047      1046      1045
+##        14 comps  15 comps  16 comps  17 comps
+## CV         1051      1052      1052      1052
+## adjCV      1045      1046      1046      1046
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps
+## X       25.81    32.40    63.00    66.40    68.58    73.09    77.67
+## Apps    82.01    89.71    90.03    90.94    91.96    92.31    92.44
+##       8 comps  9 comps  10 comps  11 comps  12 comps  13 comps  14 comps
+## X       81.56    83.39     86.04     89.17      91.3     93.59     94.78
+## Apps    92.49    92.53     92.56     92.58      92.6     92.61     92.61
+##       15 comps  16 comps  17 comps
+## X        97.58     98.19    100.00
+## Apps     92.61     92.61     92.61
+```
+The lowest cross-validation error occurs with 10 components.
+
+```r
+validationplot(pls.fit, val.type="MSEP")
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-43-1.png)<!-- -->
+
+```r
+pls.pred <- predict(pls.fit,x[test,],ncomp=10) 
+pls.error <- mean((pls.pred-y.test)^2)
+pls.error
+```
+
+```
+## [1] 1488374
+```
+The test MSE for PLS is 1488374, which is lower than PCR, but still higher than least squares, ridge, and lasso regressions.
+
+(g) Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these five approaches?
+
+
+```r
+errors <- c(lm.error, ridge.error, lasso.error, pcr.error, pls.error)
+names(errors) <- c("lm", "ridge", "lasso", "pcr", "pls")
+barplot(sort(errors))
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
+
+```r
+print(sort(errors))
+```
+
+```
+##     pcr      lm     pls   lasso   ridge 
+## 1475528 1475528 1488374 1555235 2475678
+```
+Both PCR and LM methods have the lowest test error, followed by PLS, LASSO and then RIDGE regression. 
+The first four have comparable test errors, while ridge regression produces significantly worse results.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 tbc
