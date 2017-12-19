@@ -30,10 +30,6 @@ Y <- B0 + B1*X + B2*X^2 + B3*X^3 + e
 require(leaps)
 ```
 
-```
-## Loading required package: leaps
-```
-
 ```r
 Xy <- data.frame(y=Y, x=X)
 reg.fit.full <- regsubsets(y ~ I(X) + I(X^2)+ I(X^3) + I(X^4) + I(X^5) + I(X^6) + I(X^7) + I(X^8) + I(X^9) + I(X^10), data=Xy, nvmax=10)
@@ -115,7 +111,7 @@ ylab="Adjusted R^2^",type="l")
 points(which.max(reg.fit.full.summary$adjr2), reg.fit.full.summary$adjr2[which.max(reg.fit.full.summary$adjr2)], col="red", cex=2, pch=20)
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 The best model according to Cp and Adjusted R^2^ has 4 variables, and according to BIC 3 variables (BIC penalizes large models and therefore tends to choose smaller models).  
 
@@ -224,18 +220,6 @@ library(glmnet)
 ## Warning: package 'glmnet' was built under R version 3.4.2
 ```
 
-```
-## Loading required package: Matrix
-```
-
-```
-## Loading required package: foreach
-```
-
-```
-## Loaded glmnet 2.0-13
-```
-
 ```r
 X <- model.matrix(y ~ x + I(x^2) + I(x^3) + I(x^4) + I(x^5) + I(x^6) + I(x^7) + I(x^8) + I(x^9) + I(x^10), data=Xy)[, -1]
 Y <- Xy$y
@@ -245,7 +229,7 @@ cv.lasso.mod <- cv.glmnet(X,Y,alpha=1)
 plot(cv.lasso.mod)
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
 
 ```r
 min.lambda <- cv.lasso.mod$lambda.min
@@ -356,7 +340,7 @@ ylab="Adjusted R^2^",type="l")
 points(which.max(reg.fit.full.summary$adjr2), reg.fit.full.summary$adjr2[which.max(reg.fit.full.summary$adjr2)], col="red", cex=2, pch=20)
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
 
 We pick the 2 variable model with Cp, the 1 variable model with BIC, and the 4 variable model with Adjusted R^2^.
 
@@ -401,7 +385,7 @@ cv.lasso.mod <- cv.glmnet(X,Y,alpha=1)
 plot(cv.lasso.mod)
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-28-1.png)<!-- -->
 
 
 ```r
@@ -431,13 +415,6 @@ The lasso method chose the 1 variable model using only X^7^ variable.
 
 ```r
 require(ISLR)
-```
-
-```
-## Loading required package: ISLR
-```
-
-```r
 data(College)
 attach(College)
 ```
@@ -524,7 +501,7 @@ cv.ridge.fit <- cv.glmnet(x.train,y.train,alpha=0)
 plot(cv.ridge.fit)
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-36-1.png)<!-- -->
 
 ```r
 bestlam <- cv.ridge.fit$lambda.min
@@ -593,21 +570,6 @@ There are 5 non-zero coefficient estimates.
 require(pls)
 ```
 
-```
-## Loading required package: pls
-```
-
-```
-## 
-## Attaching package: 'pls'
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     loadings
-```
-
 ```r
 set.seed(1)
 pcr.fit <- pcr(Apps~., data=College, subset=train, scale=TRUE, validation ="CV")
@@ -648,7 +610,7 @@ summary(pcr.fit)
 validationplot(pcr.fit,val.type="MSEP")
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-40-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-43-1.png)<!-- -->
 
 We see that the lowest cross-validation error occurs when all 17 components are included.
 
@@ -706,7 +668,7 @@ The lowest cross-validation error occurs with 10 components.
 validationplot(pls.fit, val.type="MSEP")
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-43-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-46-1.png)<!-- -->
 
 ```r
 pls.pred <- predict(pls.fit,x[test,],ncomp=10) 
@@ -728,7 +690,7 @@ names(errors) <- c("lm", "ridge", "lasso", "pcr", "pls")
 barplot(sort(errors))
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-48-1.png)<!-- -->
 
 ```r
 print(sort(errors))
@@ -740,6 +702,7 @@ print(sort(errors))
 ```
 Both PCR and LM methods have the lowest test error, followed by PLS, LASSO and then RIDGE regression. 
 The first four have comparable test errors, while ridge regression produces significantly worse results.  
+
 
 10. We have seen that as the number of features used in a model increases, the training error will necessarily decrease, but the test error may not. We will now explore this in a simulated data set.  
 
@@ -792,7 +755,7 @@ for(i in 1:20){
 plot(val.errors, type='b')
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-50-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-53-1.png)<!-- -->
 
 ```r
 which.min(val.errors)
@@ -801,7 +764,6 @@ which.min(val.errors)
 ```
 ## [1] 20
 ```
-
 
 (d) Plot the test set MSE associated with the best model of each size.
 
@@ -819,7 +781,7 @@ for(i in 1:20){
 plot(val.errors.test, type='b')
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-52-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-55-1.png)<!-- -->
 
 (e) For which model size does the test set MSE take on its minimum value? Comment on your results. If it takes on its minimum value for a model containing only an intercept or a model containing all of the features, then play around with the way that you are generating the data in (a) until you come up with a scenario in which the test set MSE is minimized for an intermediate model size.
 
@@ -863,7 +825,7 @@ for(i in 1:20){
 plot(val.errors.r, type='b')
 ```
 
-![](Ch._6_Exercises_files/figure-html/unnamed-chunk-55-1.png)<!-- -->
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-58-1.png)<!-- -->
 
 
 ```r
@@ -874,14 +836,753 @@ which.min(val.errors.r)
 ## [1] 11
 ```
 
-The model with the lowest test MSE is different from the model with the estimated coefficients closest to the true coefficients, which means that the lower test MSE doesn't necessarily mean that the coefficients are a closer fit.
+The model with the lowest test MSE is different from the model with the estimated coefficients closest to the true coefficients, which means that the lower test MSE doesn't necessarily mean that the coefficients are a closer fit.  
+
+11. We will now try to predict per capita crime rate in the `Boston` data set.  
+
+```r
+require(MASS)
+data(Boston)
+attach(Boston)
+```
+
+(a) Try out some of the regression methods explored in this chapter, such as best subset selection, the lasso, ridge regression, and PCR. Present and discuss results for the approaches that you consider.  
 
 
+```r
+# Split the data into train and test sets
+set.seed(4)
+train <- sample(1:nrow(Boston), nrow(Boston)*0.70)
+test <- -train
+y.test <- crim[test]
+```
+
+#### Least squares
 
 
-tbc
+```r
+lm.fit <- lm(crim~., data=Boston, subset=train)
+summary(lm.fit)
+```
+
+```
+## 
+## Call:
+## lm(formula = crim ~ ., data = Boston, subset = train)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -9.078 -2.316 -0.266  1.178 72.475 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  5.220551   9.006799   0.580  0.56255    
+## zn           0.047292   0.022839   2.071  0.03914 *  
+## indus       -0.069710   0.111574  -0.625  0.53253    
+## chas        -0.444899   1.339473  -0.332  0.73998    
+## nox         -6.145063   6.424239  -0.957  0.33948    
+## rm           1.460490   0.817385   1.787  0.07486 .  
+## age         -0.015293   0.021543  -0.710  0.47826    
+## dis         -1.012185   0.335135  -3.020  0.00272 ** 
+## rad          0.589918   0.110232   5.352 1.61e-07 ***
+## tax         -0.003209   0.006774  -0.474  0.63597    
+## ptratio     -0.307808   0.230738  -1.334  0.18309    
+## black        0.005890   0.004587   1.284  0.20005    
+## lstat        0.221630   0.091892   2.412  0.01640 *  
+## medv        -0.252577   0.076278  -3.311  0.00103 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 6.459 on 340 degrees of freedom
+## Multiple R-squared:  0.4643,	Adjusted R-squared:  0.4438 
+## F-statistic: 22.66 on 13 and 340 DF,  p-value: < 2.2e-16
+```
+The variables that are statistically significant are zn, dis, rad, lstat, and medv.
+
+```r
+lm.pred <- predict(lm.fit, Boston[test,])
+lm.error <- mean((lm.pred - y.test)^2)
+lm.error
+```
+
+```
+## [1] 45.28481
+```
+
+#### Best Subset Selection
+
+```r
+require(leaps)
+
+best_subset <- regsubsets(crim ~ ., data=Boston, subset=train, nvmax=13)
+best_subset_summary <- summary(best_subset)
+```
 
 
+```r
+# Pick the best model using validation set approach
+test_matrix <- model.matrix(crim~., data=Boston[test,])
 
+val.errors <- rep(NA,13)
+for(i in 1:13){
+ coefi <- coef(best_subset,id=i)
+ pred <- test_matrix[,names(coefi)]%*%coefi
+ val.errors[i] <- mean((Boston$crim[test]-pred)^2) 
+}
+
+which.min(val.errors)
+```
+
+```
+## [1] 6
+```
+
+```r
+plot(val.errors, type='b')
+points(which.min(val.errors), val.errors[6],col="red",cex=2,pch=20)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-66-1.png)<!-- -->
+
+
+```r
+coef(best_subset, which.min(val.errors))
+```
+
+```
+## (Intercept)          zn       indus         dis         rad       lstat 
+##  4.52155106  0.05424776 -0.15729544 -0.85725200  0.50531987  0.16921997 
+##        medv 
+## -0.15168045
+```
+
+```r
+best_subset_mse <- val.errors[6]
+best_subset_mse
+```
+
+```
+## [1] 42.27201
+```
+
+```r
+# Perform best subset selection with the chosen model on the entire dataset in order to obtain more accurate coefficient estimates
+
+best_subset_full <- regsubsets(crim ~., data=Boston, nvmax = 13)
+coef(best_subset_full, 6)
+```
+
+```
+##  (Intercept)           zn          nox          dis          rad 
+## 14.642639407  0.053963088 -9.238768232 -0.992810697  0.499838443 
+##        black         medv 
+## -0.008710565 -0.195989936
+```
+
+
+```r
+# Choose the model using cross-validation and the best subset method
+
+predict.regsubsets <- function (object, newdata, id,...){
+ form<-as.formula(object$call [[2]])
+ mat<-model.matrix(form,newdata)
+ coefi<-coef(object, id=id)
+ xvars<-names(coefi)
+ mat[,xvars]%*%coefi 
+}
+
+k <- 10
+set.seed(2)
+folds <- sample(1:k,nrow(Boston), replace=TRUE)
+cv.errors <- matrix(NA,k,13, dimnames=list(NULL, paste(1:13)))
+
+for(j in 1:k){
+  best.fit=regsubsets(crim~., data=Boston[folds!=j, ], nvmax=13)
+  for(i in 1:13) {
+    pred=predict(best.fit,Boston[folds==j,],id=i)
+    cv.errors[j,i]=mean((Boston$crim[folds==j]-pred)^2)
+  }
+}
+```
+
+```r
+mean.cv.errors <- apply(cv.errors,2,mean) 
+mean.cv.errors
+```
+
+```
+##        1        2        3        4        5        6        7        8 
+## 45.61239 44.07027 44.21094 43.88133 44.01382 43.64671 43.21761 42.92461 
+##        9       10       11       12       13 
+## 42.72009 42.87220 42.85081 42.68571 42.77133
+```
+
+```r
+plot(mean.cv.errors, type="b")
+points(which.min(mean.cv.errors), mean.cv.errors[12], pch=20, col='red', cex=2)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-71-1.png)<!-- -->
+
+```r
+best_subset_cv <- regsubsets(crim~., data=Boston, nvmax=13)
+coef(best_subset_cv, 12)
+```
+
+```
+##   (Intercept)            zn         indus          chas           nox 
+##  16.985713928   0.044673247  -0.063848469  -0.744367726 -10.202169211 
+##            rm           dis           rad           tax       ptratio 
+##   0.439588002  -0.993556631   0.587660185  -0.003767546  -0.269948860 
+##         black         lstat          medv 
+##  -0.007518904   0.128120290  -0.198877768
+```
+
+
+```r
+best_subset_mse_cv <- mean.cv.errors[12]
+best_subset_mse_cv
+```
+
+```
+##       12 
+## 42.68571
+```
+
+
+#### Forward Stepwise
+
+
+```r
+fwd <- regsubsets(crim~., data=Boston, subset=train, nvmax=13, method="forward")
+```
+
+```r
+# Pick the best model using validation set approach
+test_matrix <- model.matrix(crim~., data=Boston[test,])
+
+val.errors <- rep(NA,13)
+for(i in 1:13){
+ coefi <- coef(fwd,id=i)
+ pred <- test_matrix[,names(coefi)]%*%coefi
+ val.errors[i] <- mean((Boston$crim[test]-pred)^2) 
+}
+
+which.min(val.errors)
+```
+
+```
+## [1] 6
+```
+
+```r
+plot(val.errors, type='b')
+points(which.min(val.errors), val.errors[6],col="red",cex=2,pch=20)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-76-1.png)<!-- -->
+
+```r
+fwd_mse <- val.errors[6]
+fwd_mse
+```
+
+```
+## [1] 42.27201
+```
+
+
+```r
+# Perform forward subset selection with the chosen model on the entire dataset in order to obtain more accurate coefficient estimates
+
+fwd_full <- regsubsets(crim ~., data=Boston, nvmax = 13)
+coef(fwd_full, 6)
+```
+
+```
+##  (Intercept)           zn          nox          dis          rad 
+## 14.642639407  0.053963088 -9.238768232 -0.992810697  0.499838443 
+##        black         medv 
+## -0.008710565 -0.195989936
+```
+
+The models chosen by best subset selection, and forward selection using the validation approach chose the same variables - zn, nox, dis, rad, black, and medv. The test errors for both are the same.
+
+
+```r
+# Choose the model using cross-validation and the forward selection method
+
+predict.regsubsets <- function (object, newdata, id,...){
+ form<-as.formula(object$call [[2]])
+ mat<-model.matrix(form,newdata)
+ coefi<-coef(object, id=id)
+ xvars<-names(coefi)
+ mat[,xvars]%*%coefi 
+}
+
+k <- 10
+set.seed(3)
+folds <- sample(1:k,nrow(Boston), replace=TRUE)
+cv.errors <- matrix(NA,k,13, dimnames=list(NULL, paste(1:13)))
+
+for(j in 1:k){
+  best.fit <- regsubsets(crim~., data=Boston[folds!=j, ], nvmax=13, method='forward')
+  for(i in 1:13) {
+    pred<- predict(best.fit,Boston[folds==j,],id=i)
+    cv.errors[j,i] <- mean((Boston$crim[folds==j]-pred)^2)
+  }
+}
+```
+
+```r
+mean.cv.errors.fwd <- apply(cv.errors,2,mean) 
+mean.cv.errors.fwd
+```
+
+```
+##        1        2        3        4        5        6        7        8 
+## 46.92753 45.03017 46.65913 46.77745 46.37823 46.15778 45.76948 45.38806 
+##        9       10       11       12       13 
+## 45.18701 45.36425 45.27135 45.40019 45.30318
+```
+
+```r
+which.min(mean.cv.errors.fwd)
+```
+
+```
+## 2 
+## 2
+```
+
+```r
+plot(mean.cv.errors.fwd, type="b")
+points(which.min(mean.cv.errors.fwd), mean.cv.errors.fwd[2], pch=20, col='red', cex=2)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-80-1.png)<!-- -->
+
+
+```r
+fwd_cv <- regsubsets(crim~., data=Boston, nvmax=13, method='forward')
+coef(fwd_cv, 2)
+```
+
+```
+## (Intercept)         rad       lstat 
+##  -4.3814053   0.5228128   0.2372846
+```
+
+
+```r
+fwd_mse_cv <- mean.cv.errors.fwd[2]
+fwd_mse_cv
+```
+
+```
+##        2 
+## 45.03017
+```
+
+#### Backward Stepwise
+
+```r
+bwd <- regsubsets(crim~., data=Boston, subset=train, nvmax=13, method="backward")
+```
+
+```r
+# Pick the best model using validation set approach
+test_matrix <- model.matrix(crim~., data=Boston[test,])
+
+val.errors <- rep(NA,13)
+for(i in 1:13){
+ coefi <- coef(bwd,id=i)
+ pred <- test_matrix[,names(coefi)]%*%coefi
+ val.errors[i] <- mean((Boston$crim[test]-pred)^2) 
+}
+
+which.min(val.errors)
+```
+
+```
+## [1] 8
+```
+
+```r
+plot(val.errors, type='b')
+points(which.min(val.errors), val.errors[8],col="red",cex=2,pch=20)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-85-1.png)<!-- -->
+
+```r
+bwd_mse <- val.errors[8]
+bwd_mse
+```
+
+```
+## [1] 42.21775
+```
+
+
+```r
+# Perform backward subset selection with the chosen model on the entire dataset in order to obtain more accurate coefficient estimates
+
+bwd_full <- regsubsets(crim ~., data=Boston, nvmax = 13)
+coef(bwd_full, 8)
+```
+
+```
+##   (Intercept)            zn           nox           dis           rad 
+##  19.683127801   0.043293393 -12.753707757  -0.918318253   0.532616533 
+##       ptratio         black         lstat          medv 
+##  -0.310540942  -0.007922426   0.110173124  -0.174207166
+```
+
+```r
+best_subset_mse
+```
+
+```
+## [1] 42.27201
+```
+
+```r
+fwd_mse
+```
+
+```
+## [1] 42.27201
+```
+
+```r
+bwd_mse
+```
+
+```
+## [1] 42.21775
+```
+
+The backward selection model has the lowest test MSE when the model is selected using the validation set approach. It uses 2 more variables than best subset and forward selection - ptratio and lstat.  
+
+
+```r
+# Choose the model using cross-validation and the backward selection method
+
+predict.regsubsets <- function (object, newdata, id,...){
+ form<-as.formula(object$call [[2]])
+ mat<-model.matrix(form,newdata)
+ coefi<-coef(object, id=id)
+ xvars<-names(coefi)
+ mat[,xvars]%*%coefi 
+}
+
+k <- 10
+set.seed(4)
+folds <- sample(1:k,nrow(Boston), replace=TRUE)
+cv.errors <- matrix(NA,k,13, dimnames=list(NULL, paste(1:13)))
+
+for(j in 1:k){
+  best.fit <- regsubsets(crim~., data=Boston[folds!=j, ], nvmax=13, method='backward')
+  for(i in 1:13) {
+    pred<- predict(best.fit,Boston[folds==j,],id=i)
+    cv.errors[j,i] <- mean((Boston$crim[folds==j]-pred)^2)
+  }
+}
+```
+
+```r
+mean.cv.errors.bwd <- apply(cv.errors,2,mean) 
+mean.cv.errors.bwd
+```
+
+```
+##        1        2        3        4        5        6        7        8 
+## 44.00104 42.48988 43.48513 42.74537 42.21562 42.05362 41.63128 41.49991 
+##        9       10       11       12       13 
+## 41.12376 41.56103 41.60452 41.33065 41.35382
+```
+
+```r
+which.min(mean.cv.errors.bwd)
+```
+
+```
+## 9 
+## 9
+```
+
+```r
+plot(mean.cv.errors.bwd, type="b")
+points(which.min(mean.cv.errors.bwd), mean.cv.errors.bwd[9], pch=20, col='red', cex=2)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-90-1.png)<!-- -->
+
+
+```r
+bwd_cv <- regsubsets(crim~., data=Boston, nvmax=13, method='backward')
+coef(bwd_cv, 9)
+```
+
+```
+##   (Intercept)            zn         indus           nox           dis 
+##  19.124636156   0.042788127  -0.099385948 -10.466490364  -1.002597606 
+##           rad       ptratio         black         lstat          medv 
+##   0.539503547  -0.270835584  -0.008003761   0.117805932  -0.180593877
+```
+
+
+```r
+bwd_mse_cv <- mean.cv.errors.bwd[9]
+bwd_mse_cv
+```
+
+```
+##        9 
+## 41.12376
+```
+The backward stepwise selection model selected by cross validation has even lower test MSE.  
+
+#### Lasso regression
+
+```r
+require(glmnet)
+
+set.seed(9)
+
+x <- model.matrix(crim~., Boston)[, -1]
+y <- Boston$crim
+
+lasso.fit <- glmnet(x[train, ], y[train], alpha=1)
+cv.lasso.fit <- cv.glmnet(x[train, ], y[train], alpha=1)
+plot(cv.lasso.fit)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-93-1.png)<!-- -->
+
+```r
+bestlam.lasso <- cv.lasso.fit$lambda.min
+bestlam.lasso
+```
+
+```
+## [1] 0.04289254
+```
+
+
+```r
+lasso.pred <- predict(lasso.fit, s=bestlam.lasso, newx=x[test,]) 
+lasso.error <- mean((lasso.pred-y[test])^2)
+lasso.error
+```
+
+```
+## [1] 44.48235
+```
+
+
+```r
+lasso.coef <- predict(lasso.fit,type="coefficients", s=bestlam)[1:13,]
+length(lasso.coef[lasso.coef != 0])
+```
+
+```
+## [1] 1
+```
+
+```r
+lasso.coef[lasso.coef != 0]
+```
+
+```
+## (Intercept) 
+##    3.677288
+```
+
+Lasso regression zeroed out all the variables except for the intercept.
+
+#### Ridge regression
+
+
+```r
+ridge.fit <- glmnet(x[train, ], y[train], alpha=0)
+cv.ridge.fit <- cv.glmnet(x[train, ], y[train], alpha=0)
+plot(cv.ridge.fit)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-97-1.png)<!-- -->
+
+```r
+bestlam.ridge <- cv.ridge.fit$lambda.min
+bestlam.ridge
+```
+
+```
+## [1] 0.5940129
+```
+
+
+```r
+ridge.pred <- predict(ridge.fit, s=bestlam.ridge, newx=x[test,]) 
+ridge.error <- mean((ridge.pred-y[test])^2)
+ridge.error
+```
+
+```
+## [1] 44.44253
+```
+The ridge error is only slightly higher than the lasso. 
+
+#### PCR (Principal Component Regression)
+
+
+```r
+library(pls)
+set.seed(4)
+
+pcr.fit <- pcr(crim~., data=Boston, subset=train, scale=TRUE, validation ="CV")
+```
+
+```r
+summary(pcr.fit)
+```
+
+```
+## Data: 	X dimension: 354 13 
+## 	Y dimension: 354 1
+## Fit method: svdpc
+## Number of components considered: 13
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV           8.673    7.268    7.252    6.982    6.961    6.997    6.932
+## adjCV        8.673    7.263    7.246    6.976    6.951    6.990    6.922
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV       6.919    6.702    6.693     6.746     6.749     6.726     6.682
+## adjCV    6.908    6.690    6.682     6.731     6.735     6.708     6.663
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps
+## X       47.65    61.29    70.57    77.19    83.56    88.62    91.63
+## crim    31.32    31.84    36.71    37.17    37.18    39.14    39.67
+##       8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## X       93.82    95.55     97.23     98.59     99.61    100.00
+## crim    43.45    43.54     43.87     44.37     45.61     46.43
+```
+
+
+```r
+validationplot(pcr.fit, val.type="MSEP")
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-101-1.png)<!-- -->
+
+```r
+6.690^2 - 6.663^2
+```
+
+```
+## [1] 0.360531
+```
+
+The lowest MSE occurs when all 13 variables are present in the model, which doesn't help in dimensionality reduction. However, we can also see that between 8-13 variables, the test MSE for the 8 variable model is only higher by 0.360531.
+
+
+```r
+pcr.pred <- predict(pcr.fit, x[test,], ncomp=13) 
+pcr.error <- mean((pcr.pred-y.test)^2)
+pcr.error
+```
+
+```
+## [1] 45.28481
+```
+
+
+#### PLS (Partial Least Squares)
+
+```r
+set.seed(6)
+pls.fit<- plsr(crim~., data=Boston, subset=train, scale=TRUE, validation="CV")
+summary(pls.fit)
+```
+
+```
+## Data: 	X dimension: 354 13 
+## 	Y dimension: 354 1
+## Fit method: kernelpls
+## Number of components considered: 13
+## 
+## VALIDATION: RMSEP
+## Cross-validated using 10 random segments.
+##        (Intercept)  1 comps  2 comps  3 comps  4 comps  5 comps  6 comps
+## CV           8.673    7.094    6.793    6.710    6.677    6.655    6.656
+## adjCV        8.673    7.090    6.783    6.698    6.662    6.640    6.639
+##        7 comps  8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## CV       6.647    6.636    6.628     6.630     6.631     6.631     6.631
+## adjCV    6.630    6.620    6.612     6.614     6.615     6.615     6.615
+## 
+## TRAINING: % variance explained
+##       1 comps  2 comps  3 comps  4 comps  5 comps  6 comps  7 comps
+## X       47.32    56.52    63.93    72.62    77.60    80.89    85.23
+## crim    34.39    41.85    44.42    45.47    45.94    46.20    46.32
+##       8 comps  9 comps  10 comps  11 comps  12 comps  13 comps
+## X       87.34    89.11     94.20     96.78     98.29    100.00
+## crim    46.39    46.42     46.42     46.43     46.43     46.43
+```
+
+
+```r
+validationplot(pls.fit, val.type="MSEP")
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-105-1.png)<!-- -->
+
+The lowest MSE occurs when 9 variables are present. 
+
+```r
+pls.pred <- predict(pls.fit, x[test,], ncomp=9) 
+pls.error <- mean((pls.pred-y.test)^2)
+pls.error 
+```
+
+```
+## [1] 45.09748
+```
+
+(b) Propose a model (or set of models) that seem to perform well on this data set, and justify your answer. Make sure that you are evaluating model performance using validation set error, cross-validation, or some other reasonable alternative, as opposed to using training error.  
+
+
+```r
+errors <- c(lm.error, best_subset_mse, best_subset_mse_cv, fwd_mse, fwd_mse_cv, bwd_mse, bwd_mse_cv, lasso.error, ridge.error, pcr.error, pls.error)
+names(errors) <- c("lm", "best subset val", "best subset cv","forward val", "forward cv", "backward val", "backward cv", "ridge", "lasso", "pcr", "pls")
+
+par(las=2)
+par(mar=c(5,8,4,2))
+barplot(sort(errors, decreasing = T), horiz=TRUE)
+```
+
+![](Ch._6_Exercises_files/figure-html/unnamed-chunk-107-1.png)<!-- -->
+
+```r
+print(sort(errors))
+```
+
+```
+##     backward cv    backward val best subset val     forward val 
+##        41.12376        42.21775        42.27201        42.27201 
+##  best subset cv           lasso           ridge      forward cv 
+##        42.68571        44.44253        44.48235        45.03017 
+##             pls              lm             pcr 
+##        45.09748        45.28481        45.28481
+```
+
+The best model is a 9 variable model selected using cross-validation and backward stepwise selection method.
+
+(c) Does your chosen model involve all of the features in the data set? Why or why not?
+
+No, it does not. It contains 9 variables: zn, indus, nox, dis, rad, ptratio, black, lstat, and medv.
 
 
